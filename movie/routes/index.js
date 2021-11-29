@@ -1,6 +1,7 @@
 var express = require("express");
-const { addMovie, deleteMovie } = require("../controllers/movie");
+const { addMovie, deleteMovie, getAllMovie, getMovie, updateMovie} = require("../controllers/movie");
 var router = express.Router();
+const {isAuthenticated, isAdmin} = require("../controllers/user");
 const User = require("../models/index");
 const Movie = require("../models/movie");
 /* GET home page. */
@@ -18,8 +19,8 @@ router.post("/user", async (req, res) => {
        email: email, 
        roll: roll 
       });
-    const savedTodo = await user.save();
-    res.status(200).json(savedTodo);
+    const savedMovie = await user.save();
+    res.status(200).json(savedMovie);
   }
   catch (err) {
     res.status(400).json({ message: "err occured" });
@@ -42,9 +43,11 @@ router.post("/user", async (req, res) => {
 
 // });
 
-router.post("/movie",addMovie);
-router.delete("/deletemovie/:id",deleteMovie)
-
+router.post("/addmovie/:id",isAuthenticated,isAdmin,addMovie);
+router.delete("/deletemovie/:id",isAuthenticated,isAdmin,deleteMovie);
+router.get("/getallmovie",getAllMovie);
+router.get("/getmovie/:moviename",getMovie);
+router.put("/updatemovie/:moviename",updateMovie);
 // router.get("/movie")
 
 module.exports = router;

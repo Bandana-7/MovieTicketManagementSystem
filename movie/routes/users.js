@@ -4,6 +4,8 @@ const User = require('../models');
 var router = express.Router();
 var jwt = require('jsonwebtoken');
 const { DATE } = require('sequelize/dist');
+var {getUserById} = require(`../controllers/user`);
+router.param("Id",getUserById);
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
@@ -25,8 +27,8 @@ router.post("/login", async function(req, res){
                 if( password===user.password){
                   console.log(user.dataValues);
                 const accessToken = jwt.sign(
-                   user.backend1.dataValues,
-                    process.env.SECRET
+                   user.dataValues,
+                    "vvhbhjk"
                 );
                 console.log("token",accessToken);
 
@@ -60,6 +62,7 @@ router.post("/login", async function(req, res){
 router.post("/signup",async function(req,res){
   const saltRounds = 10;
   const { fullname, email, password } = req.body;
+console.log(fullname,"in signup.....");
 
   try {
       // check if user already exists with the same email
@@ -85,10 +88,14 @@ router.post("/signup",async function(req,res){
           // save user
           const savedUser = await newUser.save();
 
+          console.log("from frontend",savedUser);
+
+
           res.status(201).json({
               message: "User created successfully",
               savedUser,
           });
+
       
   } 
   catch (err) {
@@ -105,7 +112,38 @@ router.get("/signout",async function(req,res){
     return res.status(500).json({ message: "could not logout", err });
 }
 });
+//
+router.get("/getallusers",async function(req,res)  {
+    
+        const users = await User.findAll();
 
+        console.log("users in getall",users);
+        try {
+            if (users.length > 0) {
+                return res.status(200).json(
+                    users.map((item) => {
+                        return {
+                            fullname: item.fullname,
+                            email: item.email,
+                            password: item.password,
+                            
+                        };
+                    }
+                    ));
+            } else {
+                return res.status(200).json({
+                    message:
+                        "Currently no users are available!",
+                });
+            }
+        }
+        catch (err) {
+            return res.status(500).json({
+                message: err.message
+            })
+        }
+    
+})
 //Book Tickets
 router.get("/book",)
 
